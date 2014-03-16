@@ -162,6 +162,41 @@ fi
 VERBOSE=$(trueorfalse True $VERBOSE)
 
 
+# Additional repos
+# ================
+
+# Some distros need to add repos beyond the defaults provided by the vendor
+# to pick up required packages.
+
+# The Debian Wheezy official repositories do not contain all required packages,
+# add gplhost repository.
+if [[ "$os_VENDOR" =~ (Debian) ]]; then
+    echo 'deb http://archive.gplhost.com/debian grizzly main' | sudo tee /etc/apt/sources.list.d/gplhost_wheezy-backports.list
+    echo 'deb http://archive.gplhost.com/debian grizzly-backports main' | sudo tee -a /etc/apt/sources.list.d/gplhost_wheezy-backports.list
+#    apt_get update
+#    apt_get install --force-yes gplhost-archive-keyring
+fi
+
+if [[ is_fedora && $DISTRO =~ (rhel6) ]]; then
+    # Installing Open vSwitch on RHEL6 requires enabling the RDO repo.
+    RHEL6_RDO_REPO_RPM=${RHEL6_RDO_REPO_RPM:-"http://rdo.fedorapeople.org/openstack-havana/rdo-release-havana.rpm"}
+    RHEL6_RDO_REPO_ID=${RHEL6_RDO_REPO_ID:-"openstack-havana"}
+    if ! yum repolist enabled $RHEL6_RDO_REPO_ID | grep -q $RHEL6_RDO_REPO_ID; then
+        echo "RDO repo not detected; installing"
+        yum_install $RHEL6_RDO_REPO_RPM || \
+            die $LINENO "Error installing RDO repo, cannot continue"
+    fi
+
+    # RHEL6 requires EPEL for many Open Stack dependencies
+    RHEL6_EPEL_RPM=${RHEL6_EPEL_RPM:-"http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"}
+    if ! yum repolist enabled epel | grep -q 'epel'; then
+        echo "EPEL not detected; installing"
+        yum_install ${RHEL6_EPEL_RPM} || \
+            die $LINENO "Error installing EPEL repo, cannot continue"
+    fi
+fi
+
+
 # root Access
 # -----------
 
@@ -239,7 +274,7 @@ safe_chown -R $STACK_USER $DATA_DIR
 # from either range when attempting to guess the IP to use for the host.
 # Note that setting FIXED_RANGE may be necessary when running DevStack
 # in an OpenStack cloud that uses either of these address ranges internally.
-FLOATING_RANGE=${FLOATING_RANGE:-192.168.221.0/24}
+FLOATING_RANGE=${FLOATING_RANGE:-172.24.4.0/24}
 FIXED_RANGE=${FIXED_RANGE:-10.0.0.0/24}
 FIXED_NETWORK_SIZE=${FIXED_NETWORK_SIZE:-256}
 
@@ -566,6 +601,176 @@ failed() {
 # an error.  It is also useful for following along as the install occurs.
 set -o xtrace
 
+
+# Install Packages
+# ================
+
+# OpenStack uses a fair number of other projects.
+
+# Install package requirements
+# Source it so the entire environment is available
+echo_summary "Installing package prerequisites"
+source $TOP_DIR/tools/install_prereqs.sh
+
+# Configure an appropriate python environment
+#if [[ "$OFFLINE" != "True" ]]; then
+#    $TOP_DIR/tools/install_pip.sh
+#fi
+
+# Do the ugly hacks for borken packages and distros
+$TOP_DIR/tools/fixup_stuff.sh
+
+install_rpc_backend
+
+if is_service_enabled $DATABASE_BACKENDS; then
+    install_database
+fi
+
+if is_service_enabled neutron; then
+    install_neutron_agent_packages
+fi
+
+TRACK_DEPENDS=${TRACK_DEPENDS:-False}
+
+# Install python packages into a virtualenv so that we can track them
+if [[ $TRACK_DEPENDS = True ]]; then
+    echo_summary "Installing Python packages into a virtualenv $DEST/.venv"
+    pip_install -U virtualenv
+
+    rm -rf $DEST/.venv
+    virtualenv --system-site-packages $DEST/.venv
+    source $DEST/.venv/bin/activate
+    $DEST/.venv/bin/pip freeze > $DEST/requires-pre-pip
+fi
+
+# Check Out and Install Source
+# ----------------------------
+
+echo_summary "Installing OpenStack project source"
+
+# Install required infra support libraries
+install_infra
+
+# Install oslo libraries that have graduated
+install_oslo
+
+# Install stackforge libraries for testing
+if is_service_enabled stackforge_libs; then
+    install_stackforge
+fi
+
+# Install clients libraries
+install_keystoneclient
+install_glanceclient
+install_cinderclient
+install_novaclient
+if is_service_enabled swift glance horizon; then
+    install_swiftclient
+fi
+if is_service_enabled neutron nova horizon; then
+    install_neutronclient
+fi
+if is_service_enabled heat horizon; then
+    install_heatclient
+fi
+
+git_clone $OPENSTACKCLIENT_REPO $OPENSTACKCLIENT_DIR $OPENSTACKCLIENT_BRANCH
+setup_develop $OPENSTACKCLIENT_DIR
+
+if is_service_enabled key; then
+    install_keystone
+    configure_keystone
+fi
+
+if is_service_enabled s-proxy; then
+    install_swift
+    configure_swift
+
+    # swift3 middleware to provide S3 emulation to Swift
+    if is_service_enabled swift3; then
+        # replace the nova-objectstore port by the swift port
+        S3_SERVICE_PORT=8080
+        git_clone $SWIFT3_REPO $SWIFT3_DIR $SWIFT3_BRANCH
+        setup_develop $SWIFT3_DIR
+    fi
+fi
+
+if is_service_enabled g-api n-api; then
+    # image catalog service
+    install_glance
+    configure_glance
+fi
+
+if is_service_enabled cinder; then
+    install_cinder
+    configure_cinder
+fi
+
+if is_service_enabled neutron; then
+    install_neutron
+    install_neutron_third_party
+fi
+
+if is_service_enabled nova; then
+    # compute service
+    install_nova
+    cleanup_nova
+    configure_nova
+fi
+
+if is_service_enabled horizon; then
+    # dashboard
+    install_horizon
+    configure_horizon
+fi
+
+if is_service_enabled ceilometer; then
+    install_ceilometerclient
+    install_ceilometer
+    echo_summary "Configuring Ceilometer"
+    configure_ceilometer
+    configure_ceilometerclient
+fi
+
+if is_service_enabled heat; then
+    install_heat
+    cleanup_heat
+    configure_heat
+fi
+
+if is_service_enabled tls-proxy; then
+    configure_CA
+    init_CA
+    init_cert
+    # Add name to /etc/hosts
+    # don't be naive and add to existing line!
+fi
+
+if is_service_enabled ir-api ir-cond; then
+    install_ironic
+    install_ironicclient
+    configure_ironic
+fi
+
+# Extras Install
+# --------------
+
+# Phase: install
+if [[ -d $TOP_DIR/extras.d ]]; then
+    for i in $TOP_DIR/extras.d/*.sh; do
+        [[ -r $i ]] && source $i stack install
+    done
+fi
+
+if [[ $TRACK_DEPENDS = True ]]; then
+    $DEST/.venv/bin/pip freeze > $DEST/requires-post-pip
+    if ! diff -Nru $DEST/requires-pre-pip $DEST/requires-post-pip > $DEST/requires.diff; then
+        echo "Detect some changes for installed packages of pip, in depend tracking mode"
+        cat $DEST/requires.diff
+    fi
+    echo "Ran stack.sh in depend tracking mode, bailing out now"
+    exit 0
+fi
 
 
 # Syslog
