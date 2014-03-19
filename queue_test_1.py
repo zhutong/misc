@@ -63,5 +63,5 @@ if __name__ == '__main__':
     for x in range(NUM_WORKERS):
         MyThread(q, x).start()
         #if q is not empty, wait
-        #while q.qsize()>0:
-        #    time.sleep(0.1)
+        while q.qsize() > 0:
+            time.sleep(0.1)
