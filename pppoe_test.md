@@ -7,10 +7,12 @@ PPPoE客户端采用Ubuntu12.0.4下PPPoE命令行的拨号软件pppoeconfig，�
 
 ## 问题及解决方法
 PPPOE拨号命令为pon，但无论成功或失败输出结果都一样，没有办法判断是否拨通，更无法测量时间。
+
     root@controller:~# pon dsl-provider
     Plugin rp-pppoe.so loaded.
 
 但是拨通后Linux会有相应的ppp接口出现，如：
+
     root@controller:~# ifconfig eth0
     ppp0      Link encap:Point-to-Point Protocol  
               inet addr:12.1.1.115  P-t-P:192.168.221.101  Mask:255.255.255.255
