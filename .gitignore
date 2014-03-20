@@ -1,0 +1,7 @@
+*.xml
+*.name
+*.iml
+*.pyo
+*.pyc
+*.log
+null
