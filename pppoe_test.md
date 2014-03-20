@@ -33,61 +33,41 @@ PPPOE拨号命令为``pon``，但无论成功或失败输出结果都一样，�
 ### 测试输出示例
 下面是用Python程序原型的输出：
 
-    root@controller:~# python pppoe_test.py 
-    [2014-03-20 14:15:11,154 -   DEBUG] Start the 1 dial tries
-    [2014-03-20 14:15:11,243 -    INFO] Dial sucess in 0.087 seconds
-    [2014-03-20 14:15:13,362 -   DEBUG] Start the 2 dial tries
-    [2014-03-20 14:15:13,448 -    INFO] Dial sucess in 0.083 seconds
-    [2014-03-20 14:15:15,569 -   DEBUG] Start the 3 dial tries
-    [2014-03-20 14:15:15,661 -    INFO] Dial sucess in 0.088 seconds
-    [2014-03-20 14:15:17,784 -   DEBUG] Start the 4 dial tries
-    [2014-03-20 14:15:22,789 - WARNING] Dial timeout
-    [2014-03-20 14:15:22,790 -   DEBUG] Start the 5 dial tries
-    [2014-03-20 14:15:27,798 - WARNING] Dial timeout
-    [2014-03-20 14:15:27,799 -   DEBUG] Start the 6 dial tries
-    [2014-03-20 14:15:32,812 - WARNING] Dial timeout
-    [2014-03-20 14:15:32,813 -   DEBUG] Start the 7 dial tries
-    [2014-03-20 14:15:32,875 -    INFO] Dial sucess in 0.057 seconds
-    [2014-03-20 14:15:34,999 -   DEBUG] Start the 8 dial tries
-    [2014-03-20 14:15:35,089 -    INFO] Dial sucess in 0.088 seconds
-    [2014-03-20 14:15:37,210 -   DEBUG] Start the 9 dial tries
-    [2014-03-20 14:15:37,301 -    INFO] Dial sucess in 0.089 seconds
-    [2014-03-20 14:15:39,422 -   DEBUG] Start the 10 dial tries
-    [2014-03-20 14:15:39,494 -    INFO] Dial sucess in 0.069 seconds
-    [2014-03-20 14:15:41,616 -   DEBUG] Start the 11 dial tries
-    [2014-03-20 14:15:41,700 -    INFO] Dial sucess in 0.081 seconds
-    [2014-03-20 14:15:43,824 -   DEBUG] Start the 12 dial tries
-    [2014-03-20 14:15:43,919 -    INFO] Dial sucess in 0.093 seconds
-    [2014-03-20 14:15:46,044 -   DEBUG] Start the 13 dial tries
-    [2014-03-20 14:15:46,123 -    INFO] Dial sucess in 0.077 seconds
-    [2014-03-20 14:15:48,245 -   DEBUG] Start the 14 dial tries
-    [2014-03-20 14:15:48,328 -    INFO] Dial sucess in 0.081 seconds
-    [2014-03-20 14:15:50,448 -   DEBUG] Start the 15 dial tries
-    [2014-03-20 14:15:50,541 -    INFO] Dial sucess in 0.089 seconds
-    [2014-03-20 14:15:52,674 -   DEBUG] Start the 16 dial tries
-    [2014-03-20 14:15:52,748 -    INFO] Dial sucess in 0.071 seconds
-    [2014-03-20 14:15:54,873 -   DEBUG] Start the 17 dial tries
-    [2014-03-20 14:15:54,952 -    INFO] Dial sucess in 0.078 seconds
-    [2014-03-20 14:15:57,076 -   DEBUG] Start the 18 dial tries
-    [2014-03-20 14:15:57,191 -    INFO] Dial sucess in 0.112 seconds
-    [2014-03-20 14:15:59,314 -   DEBUG] Start the 19 dial tries
-    [2014-03-20 14:15:59,403 -    INFO] Dial sucess in 0.086 seconds
-    [2014-03-20 14:16:01,524 -   DEBUG] Start the 20 dial tries
-    [2014-03-20 14:16:01,610 -    INFO] Dial sucess in 0.081 seconds
-    [2014-03-20 14:16:03,738 -   DEBUG] Start the 21 dial tries
-    [2014-03-20 14:16:03,823 -    INFO] Dial sucess in 0.083 seconds
-    [2014-03-20 14:16:05,946 -   DEBUG] Start the 22 dial tries
-    [2014-03-20 14:16:06,029 -    INFO] Dial sucess in 0.081 seconds
-    [2014-03-20 14:16:08,154 -   DEBUG] Start the 23 dial tries
-    [2014-03-20 14:16:08,236 -    INFO] Dial sucess in 0.080 seconds
-    [2014-03-20 14:16:10,357 -   DEBUG] Start the 24 dial tries
-    [2014-03-20 14:16:10,444 -    INFO] Dial sucess in 0.085 seconds
-    [2014-03-20 14:16:12,564 -   DEBUG] Start the 25 dial tries
-    [2014-03-20 14:16:12,659 -    INFO] Dial sucess in 0.093 seconds
-    ^C
+    root@controller:~# python pppoe_test.py  
+    [2014-03-20 20:38:08,776 -   DEBUG] Start the 1 dial tries
+    [2014-03-20 20:38:08,877 -    INFO] Dial sucess in 0.099 seconds
+    [2014-03-20 20:38:11,005 -   DEBUG] Start the 2 dial tries
+    [2014-03-20 20:38:11,108 -    INFO] Dial sucess in 0.098 seconds
+    [2014-03-20 20:38:13,232 -   DEBUG] Start the 3 dial tries
+    [2014-03-20 20:38:13,325 -    INFO] Dial sucess in 0.090 seconds
+    [2014-03-20 20:38:15,444 -   DEBUG] Start the 4 dial tries
+    [2014-03-20 20:38:15,527 -    INFO] Dial sucess in 0.079 seconds
+    [2014-03-20 20:38:17,655 -   DEBUG] Start the 5 dial tries
+    [2014-03-20 20:38:17,736 -    INFO] Dial sucess in 0.077 seconds
+    [2014-03-20 20:38:19,863 -   DEBUG] Start the 6 dial tries
+    [2014-03-20 20:38:19,949 -    INFO] Dial sucess in 0.083 seconds
+    [2014-03-20 20:38:22,074 -   DEBUG] Start the 7 dial tries
+    [2014-03-20 20:38:27,091 - WARNING] Dial timeout
+    [2014-03-20 20:38:29,094 -   DEBUG] Start the 8 dial tries
+    [2014-03-20 20:38:34,103 - WARNING] Dial timeout
+    [2014-03-20 20:38:36,107 -   DEBUG] Start the 9 dial tries
+    [2014-03-20 20:38:36,148 -    INFO] Dial sucess in 0.038 seconds
+    [2014-03-20 20:38:38,268 -   DEBUG] Start the 10 dial tries
+    [2014-03-20 20:38:38,372 -    INFO] Dial sucess in 0.098 seconds
+    
     ########## PPPoE dial statistics ##########
-    dial 25 times, 22 succeed, 12.00% failed
-    dial-time min/avg/max = 0.057/0.083/0.112 seconds
+    dial 10 times, 8 succeed, 20.00% failed
+    dial-time min/avg/max = 0.038/0.083/0.099 seconds
+    
+    detail info:
+    2014-03-20 20:38:08: 99    ms
+    2014-03-20 20:38:11: 98    ms
+    2014-03-20 20:38:13: 90    ms
+    2014-03-20 20:38:15: 79    ms
+    2014-03-20 20:38:17: 77    ms
+    2014-03-20 20:38:19: 83    ms
+    2014-03-20 20:38:36: 38    ms
+    2014-03-20 20:38:38: 98    ms
 
     root@controller:~# 
 
