@@ -2,18 +2,19 @@
 PPPoE拨号测试工具用来测量PPPoE客户端拨号的成功率、拨通所需的时间。
 
 ## 测试环境
-PPPoE客户端采用Ubuntu12.0.4下PPPoE命令行的拨号软件pppoeconfig，而服务器端则用IOL模拟。
-本工具采用Python的subporcess库调用linux的命令，
+PPPoE客户端采用Ubuntu12.0.4下PPPoE命令行的拨号软件``pppoeconfig``，而服务器端则用IOL模拟。
+
+本工具采用Python的``subprocess``库调用linux的命令，
 
 ## 问题及解决方法
-PPPOE拨号命令为pon，但无论成功或失败输出结果都一样，没有办法判断是否拨通，更无法测量时间。
+PPPOE拨号命令为``pon``，但无论成功或失败输出结果都一样，没有办法判断是否拨通，更无法测量时间。
 
     root@controller:~# pon dsl-provider
     Plugin rp-pppoe.so loaded.
 
 但是拨通后Linux会有相应的ppp接口出现，如：
 
-    root@controller:~# ifconfig eth0
+    root@controller:~# ifconfig ppp0
     ppp0      Link encap:Point-to-Point Protocol  
               inet addr:12.1.1.115  P-t-P:192.168.221.101  Mask:255.255.255.255
               UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1492  Metric:1
@@ -22,11 +23,11 @@ PPPOE拨号命令为pon，但无论成功或失败输出结果都一样，没有
               collisions:0 txqueuelen:3 
               RX bytes:892 (892.0 B)  TX bytes:1153 (1.1 KB)
 而如果拨号失败则不会出现PPP接口。
-因此可以通过ifconfig命令检查是否出现PPP接口来判断成功与否。
+因此可以通过``ifconfig``命令检查是否出现PPP接口来判断成功与否。
 
 检查PPP接口是否出现采用循环语句实现，为了保障测量的精度，循环间隔设置为10ms，同时设置了超时时间避免出现死循环。
-一旦检查到PPP接口，则计算并保存拨通所需的时间，然后使用poff命令断开PPPOE的连接。
-如果超时，则退出循环。
+* 一旦检查到PPP接口，则计算并保存拨通所需的时间，然后使用``poff``命令断开PPPOE的连接。
+* 如果超时，则退出循环。
 
 
 ### 测试输出示例
